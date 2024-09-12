@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload PDF for Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 20px 0;
+            height: 30px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #007bff;
+            transition: width 1s linear;
+        }
+
+        #readyMessage {
+            color: #28a745;
+            font-weight: bold;
+            display: none;
+            margin-top: 20px;
+        }
+
+        #waitMessage {
+            color: #ff6b6b;
+            font-weight: bold;
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function handleFileUpload() {
+            const feedback = document.getElementById('feedback');
+            const progressBar = document.querySelector('.progress-bar');
+            const progressContainer = document.querySelector('.progress-container');
+            const readyMessage = document.getElementById('readyMessage');
+            const waitMessage = document.getElementById('waitMessage');
+            const uploadField = document.querySelector('input[type="file"]');
+
+            // Check if file is uploaded
+            if (uploadField.files.length > 0) {
+                const fileName = uploadField.files[0].name;
+                feedback.textContent = `File uploaded: ${fileName}`;
+                feedback.style.color = '#28a745';
+
+                // Show progress bar
+                progressContainer.style.display = 'block';
+
+                // Start timer when file is uploaded
+                let timeLeft = 360; // 6 minutes (360 seconds)
+                let progress = 0;
+                const interval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        progress += 100 / 360; // Increase progress gradually
+                        progressBar.style.width = `${progress}%`;
+                        timeLeft--;
+                    } else {
+                        clearInterval(interval);
+                        // Show message that file might take longer
+                        progressBar.style.width = '100%';
+                        waitMessage.style.display = 'block';  // Show wait message
+                    }
+                }, 1000);
+
+            } else {
+                feedback.textContent = 'Please select a file!';
+                feedback.style.color = '#ff6b6b';
+            }
+
+            return true;  // Allow form submission
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload a PDF to Generate a Summary</h1>
+        <form method="POST" enctype="multipart/form-data" onsubmit="return handleFileUpload()">
+            <input type="file" name="file" accept=".pdf">
+            <br><br>
+            <input type="submit" value="Summarize PDF">
+        </form>
+
+        <!-- Feedback for file upload -->
+        <div id="feedback" class="feedback"></div>
+
+        <!-- Progress bar for timer -->
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+
+        <!-- Ready message after processing -->
+        <div id="readyMessage">Your summary is ready! Please download your file.</div>
+        
+        <!-- Wait message if 6 minutes ends -->
+        <div id="waitMessage">The process is taking longer than expected. Please wait a little longer.</div>
+    </div>
+</body>
+</html>
